@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Connexion Admin - Agence de Voyage{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div style="max-width: 400px; margin: 5rem auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 20px rgba(0,0,0,0.1);">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h1 style="color: var(--primary-color); margin-bottom: 0.5rem;">Administration</h1>
+                <p style="color: #666;">Accès réservé au personnel autorisé</p>
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}" style="margin-bottom: 1.5rem; position: static; animation: none; transform: none;">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" action="{{ url_for('admin_login') }}">
+                <div class="form-group">
+                    <label class="form-label" for="username">Nom d'utilisateur</label>
+                    <input type="text" id="username" name="username" class="form-control" required autofocus>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+                
+                <div class="form-group" style="margin-top: 2rem;">
+                    <button type="submit" class="btn" style="width: 100%; padding: 1rem; background-color: var(--primary-color);">Se connecter</button>
+                </div>
+            </form>
+            
+            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #eee; text-align: center;">
+                <p style="color: #666; font-size: 0.9rem;">
+                    <strong>Identifiants par défaut:</strong><br>
+                    Utilisateur: <code>admin</code><br>
+                    Mot de passe: <code>admin123</code>
+                </p>
+                <p style="color: #999; font-size: 0.8rem; margin-top: 1rem;">
+                    Pour des raisons de sécurité, changez le mot de passe après votre première connexion.
+                </p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="{{ url_for('index') }}" style="color: var(--secondary-color); text-decoration: none;">← Retour au site public</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Animation de fond pour la page de login */
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .main-header {
+        background: transparent;
+        box-shadow: none;
+    }
+    
+    .main-header .logo,
+    .main-header .nav-links a {
+        color: white;
+    }
+    
+    .main-footer {
+        background: transparent;
+        color: white;
+        text-align: center;
+        margin-top: auto;
+    }
+</style>
+{% endblock %}

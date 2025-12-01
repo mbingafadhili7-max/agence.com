@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Réservation - Agence de Voyage{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="section-title">Réserver un voyage</h1>
+        
+        <div style="max-width: 600px; margin: 0 auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <form method="POST" action="{{ url_for('reservation') }}">
+                <div class="form-group">
+                    <label class="form-label" for="nom">Nom complet *</label>
+                    <input type="text" id="nom" name="nom" class="form-control" required minlength="2" maxlength="100">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="email">Email *</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="telephone">Téléphone *</label>
+                    <input type="tel" id="telephone" name="telephone" class="form-control" required pattern="[0-9+\s\-\(\)]{10,20}">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="destination">Destination *</label>
+                    <select id="destination" name="destination" class="form-control" required>
+                        <option value="">Choisissez une destination</option>
+                        {% for dest in destinations %}
+                        <option value="{{ dest.titre }}">{{ dest.titre }}</option>
+                        {% else %}
+                        <option value="Paris, France">Paris, France</option>
+                        <option value="Tokyo, Japon">Tokyo, Japon</option>
+                        <option value="New York, USA">New York, USA</option>
+                        <option value="Bali, Indonésie">Bali, Indonésie</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="classe">Classe *</label>
+                    <select id="classe" name="classe" class="form-control" required>
+                        <option value="">Choisissez une classe</option>
+                        <option value="Classe A">Classe A - Premium</option>
+                        <option value="Classe B">Classe B - Confort</option>
+                        <option value="Classe C">Classe C - Économique</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="date">Date de départ *</label>
+                    <input type="date" id="date" name="date" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn" style="width: 100%; padding: 1rem;">Envoyer la réservation</button>
+                </div>
+                
+                <p style="font-size: 0.9rem; color: #666; margin-top: 1rem; text-align: center;">
+                    * Champs obligatoires. Nous vous contacterons dans les 24h pour confirmer votre réservation.
+                </p>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Définir la date d'aujourd'hui comme minimum
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        document.getElementById('date').min = tomorrowStr;
+        
+        // Définir une date par défaut (dans 7 jours)
+        const nextWeek = new Date(today);
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        const nextWeekStr = nextWeek.toISOString().split('T')[0];
+        document.getElementById('date').value = nextWeekStr;
+    });
+</script>
+{% endblock %}

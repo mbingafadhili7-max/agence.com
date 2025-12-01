@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion des Destinations - Agence de Voyage{% endblock %}
+
+{% block content %}
+<div class="admin-nav">
+    <div class="container">
+        <ul class="nav-links">
+            <li><a href="{{ url_for('admin_dashboard') }}">Tableau de Bord</a></li>
+            <li><a href="{{ url_for('admin_reservations') }}">Réservations</a></li>
+            <li><a href="{{ url_for('admin_commentaires') }}">Commentaires</a></li>
+            <li><a href="{{ url_for('admin_destinations') }}">Destinations</a></li>
+            <li><a href="{{ url_for('admin_parametres') }}">Paramètres</a></li>
+        </ul>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <h1 class="section-title">Gestion des Destinations</h1>
+        
+        <!-- Bouton d'ajout -->
+        <div style="text-align: right; margin-bottom: 2rem;">
+            <a href="{{ url_for('ajouter_destination') }}" class="btn">+ Ajouter une destination</a>
+        </div>
+        
+        <!-- Formulaire d'ajout/modification -->
+        {% if ajouter or modifier %}
+        <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+            <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">
+                {% if ajouter %}Ajouter une destination{% else %}Modifier la destination{% endif %}
+            </h2>
+            
+            <form method="POST" 
+                  action="{% if ajouter %}{{ url_for('ajouter_destination') }}{% else %}{{ url_for('modifier_destination', id=destination.id) }}{% endif %}" 
+                  enctype="multipart/form-data">
+                
+                {% if modifier %}
+                <input type="hidden" name="image_url_actuelle" value="{{ destination.image_url or '' }}">
+                {% endif %}
+                
+                <div class="form-group">
+                    <label class="form-label" for="titre">Titre *</label>
+                    <input type="text" id="titre" name="titre" class="form-control" 
+                           value="{% if modifier %}{{ destination.titre }}{% endif %}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="description">Description *</label>
+                    <textarea id="description" name="description" class="form-control" rows="4" required>{% if modifier %}{{ destination.description }}{% endif %}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="prix">Prix (€) *</label>
+                    <input type="number" id="prix" name="prix" class="form-control" step="0.01" min="0"
+                           value="{% if modifier %}{{ destination.prix }}{% endif %}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="image">
+                        Image {% if not ajouter %}(laissez vide pour garder l'image actuelle){% endif %}
+                    </label>
+                    <input type="file" id="image" name="image" class="form-control" accept="image/*">
+                    <small style="color: #666;">Formats acceptés : JPG, PNG, GIF. Taille max : 2MB</small>
+                </div>
+                
+                {% if modifier and destination.image_url %}
+                <div style="margin-top: 1rem;">
+                    <p style="font-weight: 600; margin-bottom: 0.5rem;">Image actuelle :</p>
+                    <img src="{{ url_for('serve_upload', filename=destination.image_url) if destination.image_url.startswith('uploads/') else destination.image_url }}" 
+                         alt="{{ destination.titre }}" 
+                         style="max-width: 200px; max-height: 150px; border-radius: 4px;">
+                </div>
+                {% endif %}
+                
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <button type="submit" class="btn">
+                        {% if ajouter %}Ajouter la destination{% else %}Enregistrer les modifications{% endif %}
+                    </button>
+                    <a href="{{ url_for('admin_destinations') }}" class="btn" style="background-color: #666; margin-left: 0.5rem;">Annuler</a>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+        
+        <!-- Liste des destinations -->
+        {% if destinations %}
+        <div style="overflow-x: auto;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Image</th>
+                        <th>Titre</th>
+                        <th>Description</th>
+                        <th>Prix (€)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for destination in destinations %}
+                    <tr>
+                        <td>#{{ destination.id }}</td>
+                        <td>
+                            {% if destination.image_url %}
+                            <img src="{{ url_for('serve_upload', filename=destination.image_url) if destination.image_url.startswith('uploads/') else destination.image_url }}" 
+                                 alt="{{ destination.titre }}" 
+                                 style="width: 80px; height: 60px; object-fit: cover; border-radius: 4px;">
+                            {% else %}
+                            <span style="color: #999;">Aucune</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ destination.titre }}</td>
+                        <td>{{ destination.description[:50] }}{% if destination.description|length > 50 %}...{% endif %}</td>
+                        <td style="color: var(--accent-color); font-weight: bold;">{{ destination.prix }} €</td>
+                        <td>
+                            <a href="{{ url_for('modifier_destination', id=destination.id) }}" 
+                               class="btn" 
+                               style="padding: 0.25rem 0.5rem; font-size: 0.8rem; margin-bottom: 0.25rem; background-color: var(--secondary-color);">
+                               Modifier
+                            </a>
+                            <a href="{{ url_for('supprimer_destination', id=destination.id) }}" 
+                               class="btn btn-danger" 
+                               style="padding: 0.25rem 0.5rem; font-size: 0.8rem;"
+                               onclick="return confirm('Supprimer cette destination ? Cette action est irréversible.')">
+                               Supprimer
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="margin-top: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+            <p style="color: #666; font-size: 0.9rem;">
+                <strong>{{ destinations|length }}</strong> destination(s) disponible(s)
+            </p>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 3rem; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <p style="color: #666; font-size: 1.1rem;">Aucune destination pour le moment.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

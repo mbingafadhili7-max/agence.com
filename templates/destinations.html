@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Destinations - Agence de Voyage{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="section-title">Nos Destinations</h1>
+        <p style="text-align: center; margin-bottom: 2rem; color: #666; max-width: 800px; margin-left: auto; margin-right: auto;">
+            Découvrez nos destinations exclusives à travers le monde. Chaque voyage est soigneusement conçu 
+            pour vous offrir une expérience unique et mémorable.
+        </p>
+        
+        {% if destinations %}
+        <div class="destinations-grid">
+            {% for destination in destinations %}
+            <div class="destination-card">
+                {% if destination.image_url %}
+                <img src="{{ url_for('serve_upload', filename=destination.image_url) if destination.image_url.startswith('uploads/') else destination.image_url }}" 
+                     alt="{{ destination.titre }}" class="destination-image" 
+                     onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80';">
+                {% else %}
+                <div class="destination-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                    <span style="font-weight: bold; text-align: center; padding: 1rem;">{{ destination.titre }}</span>
+                </div>
+                {% endif %}
+                <div class="destination-content">
+                    <h3>{{ destination.titre }}</h3>
+                    <p class="destination-price">{{ "%.2f"|format(destination.prix) }} €</p>
+                    <p>{{ destination.description }}</p>
+                    <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                        <a href="{{ url_for('reservation') }}?destination={{ destination.titre|urlencode }}" class="btn">Réserver</a>
+                        <a href="{{ url_for('tarifs') }}" class="btn" style="background-color: #666;">Voir détails</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Destinations par défaut si la base de données est vide -->
+        <div class="destinations-grid">
+            <div class="destination-card">
+                <div class="destination-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                    <span style="font-weight: bold; text-align: center; padding: 1rem;">Paris, France</span>
+                </div>
+                <div class="destination-content">
+                    <h3>Paris, France</h3>
+                    <p class="destination-price">799.99 €</p>
+                    <p>La ville lumière avec sa tour Eiffel et ses monuments historiques. Découvrez la romance et la culture française.</p>
+                    <div style="margin-top: 1rem;">
+                        <a href="{{ url_for('reservation') }}?destination=Paris,%20France" class="btn">Réserver</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="destination-card">
+                <div class="destination-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                    <span style="font-weight: bold; text-align: center; padding: 1rem;">Tokyo, Japon</span>
+                </div>
+                <div class="destination-content">
+                    <h3>Tokyo, Japon</h3>
+                    <p class="destination-price">1299.99 €</p>
+                    <p>Mélange unique de tradition et de modernité. Explorez les temples anciens et les gratte-ciels futuristes.</p>
+                    <div style="margin-top: 1rem;">
+                        <a href="{{ url_for('reservation') }}?destination=Tokyo,%20Japon" class="btn">Réserver</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="destination-card">
+                <div class="destination-image" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                    <span style="font-weight: bold; text-align: center; padding: 1rem;">Bali, Indonésie</span>
+                </div>
+                <div class="destination-content">
+                    <h3>Bali, Indonésie</h3>
+                    <p class="destination-price">899.99 €</p>
+                    <p>Plages paradisiaques et culture riche. Détendez-vous dans des resorts de luxe et explorez des temples magnifiques.</p>
+                    <div style="margin-top: 1rem;">
+                        <a href="{{ url_for('reservation') }}?destination=Bali,%20Indonésie" class="btn">Réserver</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="destination-card">
+                <div class="destination-image" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                    <span style="font-weight: bold; text-align: center; padding: 1rem;">New York, USA</span>
+                </div>
+                <div class="destination-content">
+                    <h3>New York, USA</h3>
+                    <p class="destination-price">1099.99 €</p>
+                    <p>La ville qui ne dort jamais. Découvrez Times Square, Central Park, et l'emblématique Statue de la Liberté.</p>
+                    <div style="margin-top: 1rem;">
+                        <a href="{{ url_for('reservation') }}?destination=New%20York,%20USA" class="btn">Réserver</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; color: white;">
+            <h3 style="margin-bottom: 1rem;">Besoin d'aide pour choisir ?</h3>
+            <p style="margin-bottom: 1.5rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                Nos conseillers sont à votre disposition pour vous aider à choisir la destination parfaite selon vos envies et votre budget.
+            </p>
+            <a href="{{ url_for('reservation') }}" class="btn" style="background-color: white; color: #667eea;">Consulter un conseiller</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

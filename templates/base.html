@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Agence de Voyage{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <nav class="main-nav">
+                <a href="{{ url_for('index') }}" class="logo">VoyageExpress</a>
+                <ul class="nav-links">
+                    <li><a href="{{ url_for('index') }}">Accueil</a></li>
+                    <li><a href="{{ url_for('destinations') }}">Destinations</a></li>
+                    <li><a href="{{ url_for('tarifs') }}">Tarifs</a></li>
+                    <li><a href="{{ url_for('reservation') }}">Réservation</a></li>
+                    <li><a href="{{ url_for('commentaires') }}">Commentaires</a></li>
+                    {% if session.get('admin_logged_in') %}
+                    <li><a href="{{ url_for('admin_dashboard') }}">Admin</a></li>
+                    <li><a href="{{ url_for('admin_logout') }}">Déconnexion</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Messages flash -->
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Contenu principal -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <p>{{ footer|default('© 2023 Agence de Voyage. Tous droits réservés.') }}</p>
+            <p>{{ contact|default('Contactez-nous au 01 23 45 67 89') }}</p>
+        </div>
+    </footer>
+
+    <script>
+        // Supprimer les messages flash après 5 secondes
+        setTimeout(() => {
+            const flashes = document.querySelectorAll('.flash');
+            flashes.forEach(flash => {
+                flash.style.transition = 'opacity 0.5s';
+                flash.style.opacity = '0';
+                setTimeout(() => flash.remove(), 500);
+            });
+        }, 5000);
+
+        // Carousel automatique
+        document.addEventListener('DOMContentLoaded', function() {
+            const carousel = document.querySelector('.image-carousel');
+            if (carousel) {
+                const slides = carousel.querySelectorAll('.carousel-slide');
+                let currentSlide = 0;
+                
+                function showNextSlide() {
+                    slides[currentSlide].classList.remove('active');
+                    currentSlide = (currentSlide + 1) % slides.length;
+                    slides[currentSlide].classList.add('active');
+                }
+                
+                if (slides.length > 0) {
+                    slides[0].classList.add('active');
+                    setInterval(showNextSlide, 5000);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

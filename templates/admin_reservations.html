@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion des Réservations - Agence de Voyage{% endblock %}
+
+{% block content %}
+<div class="admin-nav">
+    <div class="container">
+        <ul class="nav-links">
+            <li><a href="{{ url_for('admin_dashboard') }}">Tableau de Bord</a></li>
+            <li><a href="{{ url_for('admin_reservations') }}">Réservations</a></li>
+            <li><a href="{{ url_for('admin_commentaires') }}">Commentaires</a></li>
+            <li><a href="{{ url_for('admin_destinations') }}">Destinations</a></li>
+            <li><a href="{{ url_for('admin_parametres') }}">Paramètres</a></li>
+        </ul>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <h1 class="section-title">Gestion des Réservations</h1>
+        
+        <!-- Filtres -->
+        <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+            <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                <span style="font-weight: 600;">Filtrer par statut :</span>
+                <a href="{{ url_for('admin_reservations') }}" 
+                   class="btn" 
+                   style="background-color: {% if statut == 'tous' %}var(--primary-color){% else %}#eee{% endif %}; 
+                          color: {% if statut == 'tous' %}white{% else %}var(--text-color){% endif %}">
+                    Toutes
+                </a>
+                <a href="{{ url_for('admin_reservations', statut='en_attente') }}" 
+                   class="btn" 
+                   style="background-color: {% if statut == 'en_attente' %}var(--warning-color){% else %}#eee{% endif %}; 
+                          color: {% if statut == 'en_attente' %}white{% else %}var(--text-color){% endif %}">
+                    En attente
+                </a>
+                <a href="{{ url_for('admin_reservations', statut='approuvee') }}" 
+                   class="btn" 
+                   style="background-color: {% if statut == 'approuvee' %}var(--success-color){% else %}#eee{% endif %}; 
+                          color: {% if statut == 'approuvee' %}white{% else %}var(--text-color){% endif %}">
+                    Approuvées
+                </a>
+            </div>
+        </div>
+        
+        <!-- Liste des réservations -->
+        {% if reservations %}
+        <div style="overflow-x: auto;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Téléphone</th>
+                        <th>Destination</th>
+                        <th>Classe</th>
+                        <th>Date départ</th>
+                        <th>Date création</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reservation in reservations %}
+                    <tr>
+                        <td>#{{ reservation.id }}</td>
+                        <td>{{ reservation.nom }}</td>
+                        <td>{{ reservation.email }}</td>
+                        <td>{{ reservation.telephone }}</td>
+                        <td>{{ reservation.destination }}</td>
+                        <td>{{ reservation.classe }}</td>
+                        <td>{{ reservation.date }}</td>
+                        <td>{{ reservation.date_creation }}</td>
+                        <td>
+                            <span style="padding: 0.25rem 0.5rem; border-radius: 4px; 
+                                {% if reservation.statut == 'approuvee' %}background: #d4edda; color: #155724;
+                                {% elif reservation.statut == 'en_attente' %}background: #fff3cd; color: #856404;
+                                {% else %}background: #f8d7da; color: #721c24;{% endif %}">
+                                {{ reservation.statut|replace('_', ' ')|title }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if reservation.statut == 'en_attente' %}
+                            <a href="{{ url_for('approuver_reservation', id=reservation.id) }}" 
+                               class="btn btn-success" 
+                               style="padding: 0.25rem 0.5rem; font-size: 0.8rem; margin-bottom: 0.25rem;">
+                               Approuver
+                            </a>
+                            {% endif %}
+                            <a href="{{ url_for('supprimer_reservation', id=reservation.id) }}" 
+                               class="btn btn-danger" 
+                               style="padding: 0.25rem 0.5rem; font-size: 0.8rem;"
+                               onclick="return confirm('Supprimer cette réservation ? Cette action est irréversible.')">
+                               Supprimer
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="margin-top: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+            <p style="color: #666; font-size: 0.9rem;">
+                <strong>{{ reservations|length }}</strong> réservation(s) trouvée(s)
+                {% if statut != 'tous' %}avec le statut "{{ statut|replace('_', ' ')|title }}"{% endif %}
+            </p>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 3rem; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <p style="color: #666; font-size: 1.1rem;">Aucune réservation {% if statut != 'tous' %}avec ce statut{% endif %} pour le moment.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

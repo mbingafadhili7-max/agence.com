@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion des Commentaires - Agence de Voyage{% endblock %}
+
+{% block content %}
+<div class="admin-nav">
+    <div class="container">
+        <ul class="nav-links">
+            <li><a href="{{ url_for('admin_dashboard') }}">Tableau de Bord</a></li>
+            <li><a href="{{ url_for('admin_reservations') }}">Réservations</a></li>
+            <li><a href="{{ url_for('admin_commentaires') }}">Commentaires</a></li>
+            <li><a href="{{ url_for('admin_destinations') }}">Destinations</a></li>
+            <li><a href="{{ url_for('admin_parametres') }}">Paramètres</a></li>
+        </ul>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <h1 class="section-title">Gestion des Commentaires</h1>
+        
+        <!-- Filtres -->
+        <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+            <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                <span style="font-weight: 600;">Filtrer par statut :</span>
+                <a href="{{ url_for('admin_commentaires') }}" 
+                   class="btn" 
+                   style="background-color: {% if statut == 'tous' %}var(--primary-color){% else %}#eee{% endif %}; 
+                          color: {% if statut == 'tous' %}white{% else %}var(--text-color){% endif %}">
+                    Tous
+                </a>
+                <a href="{{ url_for('admin_commentaires', statut='en_attente') }}" 
+                   class="btn" 
+                   style="background-color: {% if statut == 'en_attente' %}var(--warning-color){% else %}#eee{% endif %}; 
+                          color: {% if statut == 'en_attente' %}white{% else %}var(--text-color){% endif %}">
+                    En attente
+                </a>
+                <a href="{{ url_for('admin_commentaires', statut='approuves') }}" 
+                   class="btn" 
+                   style="background-color: {% if statut == 'approuves' %}var(--success-color){% else %}#eee{% endif %}; 
+                          color: {% if statut == 'approuves' %}white{% else %}var(--text-color){% endif %}">
+                    Approuvés
+                </a>
+            </div>
+        </div>
+        
+        <!-- Liste des commentaires -->
+        {% if commentaires %}
+        <div style="overflow-x: auto;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Message</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for commentaire in commentaires %}
+                    <tr>
+                        <td>#{{ commentaire.id }}</td>
+                        <td>{{ commentaire.nom }}</td>
+                        <td>{{ commentaire.message }}</td>
+                        <td>{{ commentaire.date }}</td>
+                        <td>
+                            {% if commentaire.approuve == 1 %}
+                            <span style="padding: 0.25rem 0.5rem; border-radius: 4px; background: #d4edda; color: #155724;">
+                                Approuvé
+                            </span>
+                            {% else %}
+                            <span style="padding: 0.25rem 0.5rem; border-radius: 4px; background: #fff3cd; color: #856404;">
+                                En attente
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if commentaire.approuve == 0 %}
+                            <a href="{{ url_for('approuver_commentaire', id=commentaire.id) }}" 
+                               class="btn btn-success" 
+                               style="padding: 0.25rem 0.5rem; font-size: 0.8rem; margin-bottom: 0.25rem;">
+                               Approuver
+                            </a>
+                            {% endif %}
+                            <a href="{{ url_for('supprimer_commentaire', id=commentaire.id) }}" 
+                               class="btn btn-danger" 
+                               style="padding: 0.25rem 0.5rem; font-size: 0.8rem;"
+                               onclick="return confirm('Supprimer ce commentaire ? Cette action est irréversible.')">
+                               Supprimer
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="margin-top: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+            <p style="color: #666; font-size: 0.9rem;">
+                <strong>{{ commentaires|length }}</strong> commentaire(s) trouvé(s)
+                {% if statut == 'en_attente' %}en attente d'approbation
+                {% elif statut == 'approuves' %}approuvé(s)
+                {% endif %}
+            </p>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 3rem; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <p style="color: #666; font-size: 1.1rem;">Aucun commentaire {% if statut != 'tous' %}avec ce statut{% endif %} pour le moment.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

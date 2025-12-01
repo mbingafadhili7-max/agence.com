@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Accueil - Agence de Voyage{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Découvrez le monde avec nous</h1>
+            <p>{{ presentation|default('Bienvenue sur notre agence de voyage ! Nous vous proposons les meilleures destinations à des prix compétitifs.') }}</p>
+            <a href="{{ url_for('destinations') }}" class="btn">Voir nos destinations</a>
+        </div>
+    </section>
+
+    <!-- Carousel d'images -->
+    {% if images %}
+    <div class="container">
+        <div class="image-carousel">
+            {% for image in images %}
+            <div class="carousel-slide" style="background-image: url('{{ url_for('serve_upload', filename=image.url) }}');"></div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <!-- Image par défaut si aucune image n'est configurée -->
+    <div class="container">
+        <div class="image-carousel">
+            <div class="carousel-slide active" style="background-image: url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');"></div>
+            <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1502920917128-1aa500764cbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');"></div>
+            <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1439066615861-d1af74d74000?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');"></div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Destinations populaires -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Destinations Populaires</h2>
+            <div class="destinations-grid">
+                {% for destination in destinations %}
+                <div class="destination-card">
+                    {% if destination.image_url %}
+                    <img src="{{ url_for('serve_upload', filename=destination.image_url) if destination.image_url.startswith('uploads/') else destination.image_url }}" 
+                         alt="{{ destination.titre }}" class="destination-image">
+                    {% else %}
+                    <div class="destination-image" style="background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #666;">
+                        <span>Image non disponible</span>
+                    </div>
+                    {% endif %}
+                    <div class="destination-content">
+                        <h3>{{ destination.titre }}</h3>
+                        <p class="destination-price">{{ "%.2f"|format(destination.prix) }} €</p>
+                        <p>{{ destination.description[:100] }}...</p>
+                        <a href="{{ url_for('reservation') }}?destination={{ destination.titre|urlencode }}" class="btn">Réserver</a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="destination-card">
+                    <div class="destination-content">
+                        <h3>Paris, France</h3>
+                        <p class="destination-price">799.99 €</p>
+                        <p>La ville lumière avec sa tour Eiffel et ses monuments historiques.</p>
+                        <a href="{{ url_for('reservation') }}?destination=Paris,%20France" class="btn">Réserver</a>
+                    </div>
+                </div>
+                <div class="destination-card">
+                    <div class="destination-content">
+                        <h3>Tokyo, Japon</h3>
+                        <p class="destination-price">1299.99 €</p>
+                        <p>Mélange unique de tradition et de modernité.</p>
+                        <a href="{{ url_for('reservation') }}?destination=Tokyo,%20Japon" class="btn">Réserver</a>
+                    </div>
+                </div>
+                <div class="destination-card">
+                    <div class="destination-content">
+                        <h3>New York, USA</h3>
+                        <p class="destination-price">1099.99 €</p>
+                        <p>La ville qui ne dort jamais.</p>
+                        <a href="{{ url_for('reservation') }}?destination=New%20York,%20USA" class="btn">Réserver</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Commentaires récents -->
+    {% if commentaires %}
+    <section class="section" style="background-color: #f5f5f5;">
+        <div class="container">
+            <h2 class="section-title">Avis de nos voyageurs</h2>
+            <div class="destinations-grid">
+                {% for commentaire in commentaires %}
+                <div class="commentaire">
+                    <div class="commentaire-author">{{ commentaire.nom }}</div>
+                    <div class="commentaire-date">{{ commentaire.date[:10] }}</div>
+                    <p>"{{ commentaire.message }}"</p>
+                </div>
+                {% endfor %}
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="{{ url_for('commentaires') }}" class="btn">Voir tous les avis</a>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+{% endblock %}

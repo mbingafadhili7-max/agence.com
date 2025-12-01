@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Tarifs - Agence de Voyage{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="section-title">Nos Tarifs</h1>
+        <p style="text-align: center; margin-bottom: 2rem; color: #666;">Consultez nos tarifs compétitifs pour toutes nos destinations</p>
+        
+        {% if destinations %}
+        <div style="overflow-x: auto;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Destination</th>
+                        <th>Prix (€)</th>
+                        <th>Description</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for destination in destinations %}
+                    <tr>
+                        <td>{{ destination.titre }}</td>
+                        <td style="color: var(--accent-color); font-weight: bold;">{{ destination.prix }} €</td>
+                        <td>{{ destination.description[:100] }}{% if destination.description|length > 100 %}...{% endif %}</td>
+                        <td>
+                            <a href="{{ url_for('reservation') }}?destination={{ destination.titre|urlencode }}" class="btn">Réserver</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="margin-top: 2rem; padding: 1.5rem; background: #f8f9fa; border-radius: 8px;">
+            <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Informations importantes</h3>
+            <ul style="color: #666;">
+                <li>Les prix sont indiqués par personne</li>
+                <li>Les tarifs incluent le vol aller-retour et l'hébergement</li>
+                <li>Options supplémentaires disponibles lors de la réservation</li>
+                <li>Réduction de 10% pour les réservations de groupe (plus de 4 personnes)</li>
+            </ul>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 3rem; background: white; border-radius: 8px;">
+            <p style="color: #666;">Aucun tarif disponible pour le moment.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de Bord Admin - Agence de Voyage{% endblock %}
+
+{% block content %}
+<div class="admin-nav">
+    <div class="container">
+        <ul class="nav-links">
+            <li><a href="{{ url_for('admin_dashboard') }}">Tableau de Bord</a></li>
+            <li><a href="{{ url_for('admin_reservations') }}">Réservations</a></li>
+            <li><a href="{{ url_for('admin_commentaires') }}">Commentaires</a></li>
+            <li><a href="{{ url_for('admin_destinations') }}">Destinations</a></li>
+            <li><a href="{{ url_for('admin_parametres') }}">Paramètres</a></li>
+        </ul>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <h1 class="section-title">Tableau de Bord Administrateur</h1>
+        <p style="text-align: center; margin-bottom: 2rem; color: #666;">Bienvenue, {{ session.get('admin_username') }} !</p>
+        
+        <!-- Statistiques -->
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_reservations }}</div>
+                <div class="stat-label">Réservations totales</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-number">{{ reservations_en_attente }}</div>
+                <div class="stat-label">Réservations en attente</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-number">{{ total_commentaires }}</div>
+                <div class="stat-label">Commentaires total</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-number">{{ commentaires_en_attente }}</div>
+                <div class="stat-label">Commentaires en attente</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-number">{{ total_destinations }}</div>
+                <div class="stat-label">Destinations</div>
+            </div>
+        </div>
+        
+        <!-- Paramètres du site -->
+        {% if parametres %}
+        <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-top: 2rem;">
+            <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">Paramètres du site</h2>
+            
+            <form method="POST" action="{{ url_for('admin_parametres') }}">
+                <div class="form-group">
+                    <label class="form-label" for="presentation">Texte de présentation</label>
+                    <textarea id="presentation" name="presentation" class="form-control" rows="4">{{ presentation }}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="contact">Informations de contact</label>
+                    <textarea id="contact" name="contact" class="form-control" rows="2">{{ contact }}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="footer">Texte du footer</label>
+                    <input type="text" id="footer" name="footer" class="form-control" value="{{ footer }}">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="images_accueil">Images d'accueil</label>
+                    <input type="file" id="images_accueil" name="images_accueil" class="form-control" multiple accept="image/*">
+                    <small style="color: #666;">Ajoutez de nouvelles images pour le carousel d'accueil</small>
+                </div>
+                
+                <!-- Liste des images actuelles -->
+                {% if images_accueil %}
+                <div style="margin-top: 1.5rem;">
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Images actuelles</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;">
+                        {% for image in images_accueil %}
+                        <div style="position: relative;">
+                            <img src="{{ url_for('serve_upload', filename=image.url) }}" 
+                                 alt="Image d'accueil" 
+                                 style="width: 100%; height: 100px; object-fit: cover; border-radius: 4px;">
+                            <a href="{{ url_for('supprimer_image_accueil', id=image.id) }}" 
+                               class="btn btn-danger" 
+                               style="position: absolute; top: 5px; right: 5px; padding: 0.25rem 0.5rem; font-size: 0.8rem;"
+                               onclick="return confirm('Supprimer cette image ?')">×</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <button type="submit" class="btn">Enregistrer les modifications</button>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+        
+        <!-- Réservations récentes -->
+        {% if dernieres_reservations %}
+        <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-top: 2rem;">
+            <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">Réservations récentes</h2>
+            <div style="overflow-x: auto;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Destination</th>
+                            <th>Date</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reservation in dernieres_reservations %}
+                        <tr>
+                            <td>{{ reservation.nom }}</td>
+                            <td>{{ reservation.destination }}</td>
+                            <td>{{ reservation.date }}</td>
+                            <td>
+                                <span style="padding: 0.25rem 0.5rem; border-radius: 4px; 
+                                    {% if reservation.statut == 'approuvee' %}background: #d4edda; color: #155724;
+                                    {% elif reservation.statut == 'en_attente' %}background: #fff3cd; color: #856404;
+                                    {% else %}background: #f8d7da; color: #721c24;{% endif %}">
+                                    {{ reservation.statut|replace('_', ' ')|title }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('approuver_reservation', id=reservation.id) }}" class="btn btn-success" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Approuver</a>
+                                <a href="{{ url_for('supprimer_reservation', id=reservation.id) }}" class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" 
+                                   onclick="return confirm('Supprimer cette réservation ?')">Supprimer</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div style="text-align: center; margin-top: 1rem;">
+                <a href="{{ url_for('admin_reservations') }}" class="btn">Voir toutes les réservations</a>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Commentaires récents -->
+        {% if derniers_commentaires %}
+        <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-top: 2rem;">
+            <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">Commentaires récents</h2>
+            <div style="overflow-x: auto;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Message</th>
+                            <th>Date</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for commentaire in derniers_commentaires %}
+                        <tr>
+                            <td>{{ commentaire.nom }}</td>
+                            <td>{{ commentaire.message[:50] }}{% if commentaire.message|length > 50 %}...{% endif %}</td>
+                            <td>{{ commentaire.date }}</td>
+                            <td>
+                                {% if commentaire.approuve == 1 %}
+                                <span style="padding: 0.25rem 0.5rem; border-radius: 4px; background: #d4edda; color: #155724;">
+                                    Approuvé
+                                </span>
+                                {% else %}
+                                <span style="padding: 0.25rem 0.5rem; border-radius: 4px; background: #fff3cd; color: #856404;">
+                                    En attente
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if commentaire.approuve == 0 %}
+                                <a href="{{ url_for('approuver_commentaire', id=commentaire.id) }}" class="btn btn-success" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Approuver</a>
+                                {% endif %}
+                                <a href="{{ url_for('supprimer_commentaire', id=commentaire.id) }}" class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" 
+                                   onclick="return confirm('Supprimer ce commentaire ?')">Supprimer</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div style="text-align: center; margin-top: 1rem;">
+                <a href="{{ url_for('admin_commentaires') }}" class="btn">Voir tous les commentaires</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
